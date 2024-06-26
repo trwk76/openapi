@@ -1,8 +1,15 @@
 package openapi
 
 import (
+	"bytes"
+	"encoding/json"
+	"io"
+	"net/http"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"github.com/trwk76/openapi/spec"
+	"gopkg.in/yaml.v3"
 )
 
 func New(e *gin.Engine, path string, security spec.SecurityRequirements, info spec.Info) *API {
@@ -37,3 +44,25 @@ type (
 		t schemaEntries
 	}
 )
+
+func (a *API) Finalize() {
+	renderSpec(a.g, "json", a.s, json.Marshal)
+	renderSpec(a.g, "yaml", a.s, yaml.Marshal)
+}
+
+func renderSpec(g *gin.RouterGroup, ext string, s spec.OpenAPI, m func(val any) ([]byte, error)) {
+	raw, _ := m(s)
+
+	hdl := func(ctx *gin.Context) {
+		ctx.Writer.Header().Set("Content-Type", "application/"+ext)
+		ctx.Writer.Header().Set("Content-Length", strconv.Itoa(len(raw)))
+		ctx.Writer.WriteHeader(http.StatusOK)
+
+		if ctx.Request.Method == http.MethodGet {
+			io.Copy(ctx.Writer, bytes.NewReader(raw))
+		}
+	}
+
+	g.HEAD("/openapi."+ext, hdl)
+	g.GET("/openapi."+ext, hdl)
+}
