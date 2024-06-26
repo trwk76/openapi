@@ -29,6 +29,7 @@ type (
 		MaxItems             uint32                       `json:"maxItems,omitempty" yaml:"maxItems,omitempty"`
 		UniqueItems          bool                         `json:"uniqueItems,omitempty" yaml:"uniqueItems,omitempty"`
 		Properties           map[string]ItemOrRef[Schema] `json:"properties,omitempty" yaml:"properties,omitempty"`
+		PatternProperties    map[string]ItemOrRef[Schema] `json:"patternProperties,omitempty" yaml:"patternProperties,omitempty"`
 		Required             []string                     `json:"required,omitempty" yaml:"required,omitempty"`
 		AdditionalProperties *ItemOrRef[Schema]           `json:"additionalProperties,omitempty" yaml:"additionalProperties,omitempty"`
 		Discriminator        *Discriminator               `json:"discriminator,omitempty" yaml:"discriminator,omitempty"`
