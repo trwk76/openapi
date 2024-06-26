@@ -5,9 +5,10 @@ import (
 	"github.com/trwk76/openapi/spec"
 )
 
-func New(e *gin.Engine, path string, info spec.Info) *API {
+func New(e *gin.Engine, path string, security spec.SecurityRequirements, info spec.Info) *API {
 	return &API{
-		g: e.Group(path),
+		paths: newPaths(),
+		g:     e.Group(path),
 		s: spec.OpenAPI{
 			OpenAPI: spec.Version,
 			Info:    info,
@@ -22,6 +23,7 @@ func New(e *gin.Engine, path string, info spec.Info) *API {
 				Examples:        make(spec.NamedExampleOrRefs),
 				SecuritySchemes: make(spec.NamedSecuritySchemeOrRefs),
 			},
+			Security: security,
 		},
 		t: newSchemaEntries(),
 	}
@@ -29,6 +31,7 @@ func New(e *gin.Engine, path string, info spec.Info) *API {
 
 type (
 	API struct {
+		paths
 		g *gin.RouterGroup
 		s spec.OpenAPI
 		t schemaEntries
